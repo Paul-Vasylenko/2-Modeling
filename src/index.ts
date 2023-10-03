@@ -14,7 +14,7 @@ import Process from "./Process";
     const process3 = new Process(3.0, undefined, {
         maxWorkers: 1
     });
-    
+
     console.log(`id0=${create.getId()}`);
     console.log(`id1=${process1.getId()}`);
     console.log(`id2=${process2.getId()}`);
@@ -35,7 +35,7 @@ import Process from "./Process";
     process1.setName('PROCESSOR1');
     process2.setName('PROCESSOR2');
     process3.setName('PROCESSOR3');
-    
+
     create.setDistribution('exp');
     process1.setDistribution('exp');
     process2.setDistribution('exp');

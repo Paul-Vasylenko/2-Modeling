@@ -1,5 +1,8 @@
 import Element from "./Element";
 
+// todo 2
+// todo 4 --- change only 1 parameter
+
 type Worker = {
     index: number;
     status: 'busy' | 'free',
@@ -42,7 +45,7 @@ class Process extends Element {
             // Delay of work
             free.tnext = super.getTcurr() + super.getDelay()
             // console.log('Made BUSY worker', free.index);
-            
+
             super.setTnext(free.tnext);
             return
         }
@@ -68,7 +71,7 @@ class Process extends Element {
 
         // set that is finished
         busyWorker.tnext = Infinity;
-        super.setTnext(busyWorker.tnext)
+        super.setTnext(Math.min(...this.workers.map(w => w.tnext)))
         // set is free
         busyWorker.status = 'free'
 
@@ -80,8 +83,7 @@ class Process extends Element {
             busyWorker.status = 'busy'
             // delay for that element
             busyWorker.tnext = super.getTcurr() + super.getDelay();
-            super.setTnext(busyWorker.tnext);
-
+            super.setTnext(Math.min(...this.workers.map(w => w.tnext)))
         }
 
         // process next element
@@ -103,7 +105,7 @@ class Process extends Element {
     public getBusyWorker() {
         const busyWorkers = this.workers.filter(w => w.status === 'busy');
         const minTNext = Math.min(...busyWorkers.map(w => w.tnext));
-        return  this.workers.find(w => w.tnext === minTNext);
+        return this.workers.find(w => w.tnext === minTNext);
     }
 
     public setQueue(queue: number) {
