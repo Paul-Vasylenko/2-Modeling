@@ -6,15 +6,18 @@ class Model {
     private tnext: number;
     private tcurr: number;
     private event: number;
+    private time: number;
 
     constructor(list: Element[]) {
         this.list = list;
         this.tnext = 0;
         this.event = 0;
+        this.time = 0;
         this.tcurr = this.tnext;
     }
 
     public simulate(time: number) {
+        this.time = time;
         while (this.tcurr < time) {
             this.tnext = Infinity;
             for (const el of this.list) {
@@ -52,22 +55,17 @@ class Model {
 
     printResults() {
         console.log("\n-------------RESULTS---------------");
-        let totalMean = 0;
         let totalFailures = 0;
-        let total = 0;
         for (const el of this.list) {
             el.printResult();
 
             if (el instanceof Process) {
                 const mean = el.getMeanQueue() / this.tcurr;
-                totalMean += mean;
-                total++;
                 totalFailures += el.getFailure();
-                console.log(`Mean length of queue=${mean} | failure=${el.getFailure()} |failure probability=${el.getFailure() / el.getQuantity()}`);
+                console.log(`Mean length of queue=${mean} | failure=${el.getFailure()} |failure probability=${el.getFailure() / el.getQuantity()} | Mean work time ${el.getTotalWorkTime() / this.time} | Average worker work time ${el.getTotalWorkTime() / this.time / el.getWorkers().length}`);
             }
 
         }
-        console.log(`Mean load of system=${totalMean / total}`);
         console.log(`Total failures=${totalFailures}`);
     }
 }

@@ -15,6 +15,8 @@ class Process extends Element {
     private maxWorkers: number;
     private workers: Worker[] = [];
     private meanQueue: number;
+    private totalWorkTime = 0;
+
 
     constructor(delay?: number, nameOfElement?: string, options: {
         maxWorkers: number
@@ -43,8 +45,11 @@ class Process extends Element {
             // set is NOT free
             free.status = 'busy';
             // Delay of work
-            free.tnext = super.getTcurr() + super.getDelay()
+            const delay = super.getDelay();
+            free.tnext = super.getTcurr() + delay;
             // console.log('Made BUSY worker', free.index);
+
+            this.setTotalWorkTime(this.getTotalWorkTime() + delay);
 
             super.setTnext(free.tnext);
             return
@@ -82,7 +87,10 @@ class Process extends Element {
             // set busy again (we take next element)
             busyWorker.status = 'busy'
             // delay for that element
-            busyWorker.tnext = super.getTcurr() + super.getDelay();
+            const delay = super.getDelay();
+            busyWorker.tnext = super.getTcurr() + delay;
+            this.setTotalWorkTime(this.getTotalWorkTime() + delay);
+
             super.setTnext(Math.min(...this.workers.map(w => w.tnext)))
         }
 
@@ -138,6 +146,14 @@ class Process extends Element {
 
     public getWorkers() {
         return this.workers
+    }
+
+    public getTotalWorkTime() {
+        return this.totalWorkTime;
+    }
+
+    public setTotalWorkTime(time: number) {
+        this.totalWorkTime = time;
     }
 }
 
