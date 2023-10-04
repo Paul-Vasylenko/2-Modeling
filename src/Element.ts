@@ -1,11 +1,10 @@
 import FunRand from "./FunRand";
 
-type DistributionType = "exp";
+export type DistributionType = "exp";
 class Element {
   private name: string;
   private tnext: number;
   private delayMean: number;
-  // private delayDev: number; // Needed in other distributions
   private distribution: DistributionType;
   private quantity: number = 0;
   private tcurr: number;
@@ -24,6 +23,8 @@ class Element {
     this.id = Element.nextId;
     Element.nextId++;
     this.name = nameOfElement || `element_${this.id}`;
+
+    console.log(`id=${this.getId()}`);
   }
 
   public getDelay() {
@@ -43,6 +44,10 @@ class Element {
     this.nextElements.push(nextElement);
   }
 
+  public setNextElements(nextElements: Element[]) {
+    this.nextElements = nextElements;
+  }
+
   public getNextElements() {
     return this.nextElements;
   }
@@ -52,11 +57,12 @@ class Element {
     if (this.nextElements.length === 1) return this.nextElements[0];
 
     const total = this.nextElements.length;
+
     const rand = Math.random();
     const step = 1 / total;
 
     for (let i = 0; i < total; i++) {
-      if (rand >= i * step || rand < (i + 1) * step) {
+      if (rand >= i * step && rand < (i + 1) * step) {
         const foundEvent = this.nextElements[i];
         // if(foundEvent)
         return foundEvent;
