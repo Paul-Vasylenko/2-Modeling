@@ -9,7 +9,7 @@ import Process from "./Process";
         maxWorkers: 1
     });
     const process2 = new Process(2.0, undefined, {
-        maxWorkers: 5
+        maxWorkers: 1
     });
     const process3 = new Process(3.0, undefined, {
         maxWorkers: 1
@@ -21,9 +21,9 @@ import Process from "./Process";
     console.log(`id3=${process3.getId()}`);
 
 
-    create.setNextElement(process1);
-    process1.setNextElement(process2);
-    process2.setNextElement(process3);
+    create.addNextElement(process1);
+    process1.addNextElement(process2);
+    process2.addNextElement(process3);
 
     const MAX_QUEUE = 5;
 
