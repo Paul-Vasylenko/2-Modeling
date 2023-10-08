@@ -31,7 +31,6 @@ class Process extends Element {
     this.failure = 0;
     this.maxqueue = options.maxQueue;
     this.meanQueue = 0.0;
-    this.maxWorkers = Infinity;
     this.maxWorkers = options.maxWorkers;
     this.setDistribution(options.distribution)
     for (let i = 0; i < this.maxWorkers; i++) {
@@ -160,6 +159,10 @@ class Process extends Element {
 
   public setTotalWorkTime(time: number) {
     this.totalWorkTime = time;
+  }
+
+  public isFree() {
+    return this.workers.some(w => w.status === 'free');
   }
 }
 

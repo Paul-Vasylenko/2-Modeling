@@ -35,11 +35,49 @@ import Process from "./Process";
     distribution: "exp",
   });
 
-  create.setNextElements([process1]);
-  process1.setNextElements([process2, process3, process4]);
-  process2.setNextElements([process5]);
-  process3.setNextElements([process5]);
-  process4.setNextElements([process5]);
+  create.setNextElements([
+    {
+      element: process1,
+      probability: 1,
+      priority: 1,
+    },
+  ]);
+  process1.setNextElements([
+    {
+      element: process2,
+      priority: 1,
+      probability: 0.99,
+    },
+    {
+      element: process3,
+      priority: 2,
+      probability: 0.01,
+    },
+    {
+      element: process4,
+      priority: 3,
+      probability: 0,
+    },
+  ]);
+  process2.setNextElements([
+    {
+      element: process5,
+      priority: 1,
+      probability: 1,
+    },
+  ]);
+  process3.setNextElements([
+    {
+      element: process5,
+      priority: 1,
+      probability: 1,
+    },
+  ]);
+  process4.setNextElements([{
+    element: process5,
+    priority: 1,
+    probability: 1
+  }]);
 
   const arr: Element[] = [
     create,
