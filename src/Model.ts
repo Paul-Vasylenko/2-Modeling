@@ -62,7 +62,7 @@ class Model {
             if (el instanceof Process) {
                 const mean = el.getMeanQueue() / this.tcurr;
                 totalFailures += el.getFailure();
-                console.log(`Mean length of queue=${mean} | failure=${el.getFailure()} |failure probability=${el.getFailure() / el.getQuantity()} | Mean work time ${el.getTotalWorkTime() / this.time} | Average worker work time ${el.getTotalWorkTime() / this.time / el.getWorkers().length}`);
+                console.log(`Mean length of queue=${mean} | failure=${el.getFailure()} |failure probability=${el.getFailure() / ( el.getQuantity() + el.getFailure() )} | Mean work time ${el.getTotalWorkTime() / this.time} | Average worker work time ${el.getTotalWorkTime() / this.time / el.getWorkers().length}`);
             }
 
         }
