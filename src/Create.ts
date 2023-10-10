@@ -1,4 +1,4 @@
-import Element, { DistributionType } from "./Element";
+import Element, { ChooseNextElementBy, DistributionType } from "./Element";
 
 class Create extends Element {
   constructor(
@@ -6,7 +6,8 @@ class Create extends Element {
     nameOfElement?: string,
     options: {
       distribution: DistributionType;
-    } = { distribution: "exp" }
+      chooseType: ChooseNextElementBy;
+    } = { distribution: "exp", chooseType: "priority" }
   ) {
     super(delay, nameOfElement);
     super.setDistribution(options.distribution);

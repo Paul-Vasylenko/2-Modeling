@@ -2,14 +2,14 @@ import FunRand from "./FunRand";
 
 export type DistributionType = "exp";
 
-type ChooseNextElementBy = "probability" | "priority";
+export type ChooseNextElementBy = "probability" | "priority";
 export interface NextElement {
   element: Element;
   probability: number;
   priority: number;
 }
 class Element {
-  private chooseType: ChooseNextElementBy = "priority";
+  protected chooseType: ChooseNextElementBy = "priority";
   private name: string;
   private tnext: number;
   private delayMean: number;

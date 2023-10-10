@@ -6,6 +6,7 @@ import Process from "./Process";
 (async () => {
   const create = new Create(1.0, "CREATE", {
     distribution: "exp",
+    chooseType: 'priority'
   });
   const MAX_QUEUE = 5;
 
@@ -13,26 +14,31 @@ import Process from "./Process";
     maxWorkers: 5,
     maxQueue: MAX_QUEUE,
     distribution: "exp",
+    chooseType: 'priority'
   });
   const process2 = new Process(1.0, "PROCESSOR2", {
     maxWorkers: 1,
     maxQueue: MAX_QUEUE,
     distribution: "exp",
+    chooseType: 'priority'
   });
   const process3 = new Process(1.0, "PROCESSOR3", {
     maxWorkers: 1,
     maxQueue: MAX_QUEUE,
     distribution: "exp",
+    chooseType: 'priority'
   });
   const process4 = new Process(1.0, "PROCESSOR4", {
     maxWorkers: 1,
     maxQueue: MAX_QUEUE,
     distribution: "exp",
+    chooseType: 'priority'
   });
   const process5 = new Process(1.0, "PROCESSOR5", {
     maxWorkers: 5,
     maxQueue: MAX_QUEUE,
     distribution: "exp",
+    chooseType: 'priority'
   });
 
   create.setNextElements([

@@ -1,4 +1,4 @@
-import Element, { DistributionType } from "./Element";
+import Element, { ChooseNextElementBy, DistributionType } from "./Element";
 
 // todo 2
 // todo 4 --- change only 1 parameter
@@ -24,15 +24,22 @@ class Process extends Element {
       maxWorkers: number;
       maxQueue: number;
       distribution: DistributionType;
-    } = { maxWorkers: 1, maxQueue: Infinity, distribution: "exp" }
+      chooseType: ChooseNextElementBy;
+    } = {
+      maxWorkers: 1,
+      maxQueue: Infinity,
+      distribution: "exp",
+      chooseType: "priority",
+    }
   ) {
     super(delay, nameOfElement);
     this.queue = 0;
+    this.chooseType = options.chooseType;
     this.failure = 0;
     this.maxqueue = options.maxQueue;
     this.meanQueue = 0.0;
     this.maxWorkers = options.maxWorkers;
-    this.setDistribution(options.distribution)
+    this.setDistribution(options.distribution);
     for (let i = 0; i < this.maxWorkers; i++) {
       this.workers.push({
         index: i,
@@ -162,7 +169,7 @@ class Process extends Element {
   }
 
   public isFree() {
-    return this.workers.some(w => w.status === 'free');
+    return this.workers.some((w) => w.status === "free");
   }
 }
 
