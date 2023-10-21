@@ -2,7 +2,7 @@ import FunRand from "./FunRand";
 
 export type DistributionType = "exp";
 
-export type ChooseNextElementBy = "probability" | "priority";
+export type ChooseNextElementBy = "probability" | "priority" | "random";
 export interface NextElement {
   element: Element;
   probability: number;
@@ -74,6 +74,10 @@ class Element {
     if (this.chooseType === 'priority') {
       return this.chooseByPriority();
     }
+
+    if (this.chooseType === 'random') {
+      return this.chooseByRandom();
+    }
   }
 
   private chooseByProbability() {
@@ -112,6 +116,21 @@ class Element {
     free.sort((e1, e2) => e2.priority - e1.priority)
     
     return free[0]?.element;
+  }
+
+  private chooseByRandom() {
+    const total = this.nextElements.length;
+
+    const rand = Math.random();
+    const step = 1 / total;
+
+    for (let i = 0; i < total; i++) {
+      if (rand >= i * step && rand < (i + 1) * step) {
+        const foundEvent = this.nextElements[i];
+        // if(foundEvent)
+        return foundEvent;
+      }
+    }
   }
 
   public isFree() {
