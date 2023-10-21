@@ -1,6 +1,6 @@
 import FunRand from "./FunRand";
 
-export type DistributionType = "exp";
+export type DistributionType = "exp" | "uni" | "norm";
 
 export type ChooseNextElementBy = "probability" | "priority" | "random";
 type ElementByProb = { element: Element; probability: number };
@@ -35,11 +35,21 @@ function isByRandom(
   );
 }
 
+export interface IDelay {
+  delayMean?: number;
+  minDelay?: number;
+  maxDelay?: number;
+  delayDev?: number;
+}
+
 class Element {
   protected chooseType: ChooseNextElementBy = "priority";
   private name: string;
   private tnext: number;
   private delayMean: number;
+  private minDelay: number;
+  private maxDelay: number;
+  private delayDev: number;
   private distribution: DistributionType;
   private quantity: number = 0;
   private tcurr: number;
@@ -48,9 +58,9 @@ class Element {
   private static nextId = 0;
   private id: number;
 
-  constructor(delay?: number, nameOfElement?: string) {
+  constructor(delay: IDelay, nameOfElement?: string) {
     this.tnext = Infinity;
-    this.delayMean = delay || 1.0;
+    this.delayMean = delay.delayMean || 1.0;
     this.distribution = "exp";
     this.tcurr = this.tnext;
     this.state = 0;
@@ -58,6 +68,10 @@ class Element {
     this.id = Element.nextId;
     Element.nextId++;
     this.name = nameOfElement || `element_${this.id}`;
+
+    this.delayDev = delay.delayDev || 0;
+    this.minDelay = delay.minDelay || 0;
+    this.maxDelay = delay.maxDelay || 0;
 
     console.log(`id=${this.getId()}`);
   }
@@ -67,6 +81,12 @@ class Element {
     switch (this.distribution) {
       case "exp":
         delay = FunRand.exponential(delay);
+        break;
+      case "uni":
+        delay = FunRand.uniform(this.minDelay, this.maxDelay);
+        break;
+      case "norm":
+        delay = FunRand.normal(this.delayMean, this.delayDev);
         break;
       default:
         throw new Error("Wrong distribution type!");
@@ -91,7 +111,10 @@ class Element {
     }
     if (this.chooseType === "probability") {
       const isProbabilityAllSet = nextElements.every(
-        (el) => isByProb(el) && el.probability !== undefined && el.probability !== null
+        (el) =>
+          isByProb(el) &&
+          el.probability !== undefined &&
+          el.probability !== null
       );
       if (!isProbabilityAllSet)
         throw new Error(

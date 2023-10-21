@@ -1,8 +1,8 @@
-import Element, { ChooseNextElementBy, DistributionType } from "./Element";
+import Element, { ChooseNextElementBy, DistributionType, IDelay } from "./Element";
 
 class Create extends Element {
   constructor(
-    delay?: number,
+    delay: IDelay,
     nameOfElement?: string,
     options: {
       distribution: DistributionType;

@@ -15,8 +15,12 @@
   "devDependencies": {
     "@types/js-priority-queue": "^0.0.7",
     "@types/node": "^20.7.0",
+    "@types/random-normal": "^1.0.2",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "random-normal": "^1.0.0"
   }
 }

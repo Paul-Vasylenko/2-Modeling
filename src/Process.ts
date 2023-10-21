@@ -1,4 +1,4 @@
-import Element, { ChooseNextElementBy, DistributionType } from "./Element";
+import Element, { ChooseNextElementBy, DistributionType, IDelay } from "./Element";
 
 // todo 2
 // todo 4 --- change only 1 parameter
@@ -18,7 +18,7 @@ class Process extends Element {
   private totalWorkTime = 0;
 
   constructor(
-    delay?: number,
+    delay: IDelay,
     nameOfElement?: string,
     options: {
       maxWorkers: number;
