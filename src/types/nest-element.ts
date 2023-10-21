@@ -1,9 +1,9 @@
 import Element from "../Element";
 import { ChooseNextElementBy } from "./choose-next-el";
 
-export type ElementByProb = { element: Element; probability: number };
-export type ElementByPriority = { element: Element; priority: number };
-export type ElementByRandom = { element: Element };
+export type ElementByProb = { element: Element; probability: number; withBlockingRouting?: boolean };
+export type ElementByPriority = { element: Element; priority: number; withBlockingRouting?: boolean };
+export type ElementByRandom = { element: Element; withBlockingRouting?: boolean };
 export type NextElement<T extends ChooseNextElementBy> = T extends "probability"
   ? ElementByProb
   : T extends "priority"

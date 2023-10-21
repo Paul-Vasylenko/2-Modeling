@@ -105,19 +105,22 @@ class Element {
 
   public getNextElement() {
     if (!this.nextElements.length) return null;
-    if (this.nextElements.length === 1) return this.nextElements[0].element;
+    // if (this.nextElements.length === 1) return this.nextElements[0].element;
 
+    let element;
     if (this.chooseType === "probability") {
-      return this.chooseByProbability();
+      element = this.chooseByProbability();
     }
 
     if (this.chooseType === "priority") {
-      return this.chooseByPriority();
+      element = this.chooseByPriority();
     }
 
     if (this.chooseType === "random") {
-      return this.chooseByRandom();
+      element = this.chooseByRandom();
     }
+
+    return element;
   }
 
   private chooseByProbability() {
@@ -180,7 +183,9 @@ class Element {
     }
   }
 
-  public isFree() {}
+  public isFree(): boolean {
+    return true
+  }
 
   public getDistribution(): DistributionType {
     return this.distribution;

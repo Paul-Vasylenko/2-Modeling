@@ -15,6 +15,7 @@ class Create extends Element {
     super(delay, nameOfElement);
     super.setDistribution(options.distribution);
     super.setTnext(0.0);
+    this.chooseType = options.chooseType;
   }
 
   public outAct(): void {

@@ -95,8 +95,24 @@ class Process extends Element {
     // set is free
     busyWorker.status = "free";
 
+    // process next element
+    const element = super.getNextElement();
+    if (!element) return;
+    if (!element.isFree()) {
+      // chosen elemetnt in list of `nestElements`
+      const nextElement = this.getNextElements().find(
+        (el) => el.element.getId() === element.getId()
+      );
+      // блокування маршруту
+      if (nextElement?.withBlockingRouting) {
+        busyWorker.tnext = element.getTnext();
+        busyWorker.status = "busy";
+        return;
+      }
+    }
+
     // if queue is not empty
-    if (this.getQueue() > 0) {
+    if (busyWorker.status === 'free' && this.getQueue() > 0) {
       // get out of queue
       this.setQueue(this.getQueue() - 1);
       // set busy again (we take next element)
@@ -108,9 +124,7 @@ class Process extends Element {
 
       super.setTnext(Math.min(...this.workers.map((w) => w.tnext)));
     }
-
-    // process next element
-    super.getNextElement()?.inAct();
+    element?.inAct();
   }
 
   public getQueue() {
@@ -173,7 +187,10 @@ class Process extends Element {
 
   public isFree() {
     // TODO: якщо всі воркери зайняті, враховувати довжину черги
-    return this.workers.some((w) => w.status === "free") || this.queue < this.maxqueue;
+    return (
+      this.workers.some((w) => w.status === "free") ||
+      this.queue < this.maxqueue
+    );
   }
 }
 

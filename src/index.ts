@@ -11,129 +11,68 @@ import Process from "./Process";
     "CREATE",
     {
       distribution: "exp",
-      chooseType: "priority",
+      chooseType: "random",
     }
   );
-  const MAX_QUEUE = 5;
 
   const process1 = new Process(
     {
       delayMean: 1,
-      delayDev: 1,
-      minDelay: 1,
-      maxDelay: 2
     },
-    "PROCESSOR1",
+    "PROCESS1",
     {
-      maxWorkers: 5,
-      maxQueue: MAX_QUEUE,
-      distribution: "uni",
+      maxQueue: 0,
+      maxWorkers: 1,
+      distribution: "exp",
+      chooseType: "random",
+    }
+  );
+
+  const process2 = new Process(
+    {
+      delayMean: 2,
+    },
+    "PROCESS2",
+    {
+      maxQueue: Infinity,
+      maxWorkers: 2,
+      distribution: "exp",
       chooseType: "probability",
     }
   );
-  const process2 = new Process(
-    {
-      delayMean: 1,
-    },
-    "PROCESSOR2",
-    {
-      maxWorkers: 1,
-      maxQueue: MAX_QUEUE,
-      distribution: "exp",
-      chooseType: "priority",
-    }
-  );
+
   const process3 = new Process(
     {
-      delayMean: 1,
+      delayMean: 2,
     },
-    "PROCESSOR3",
+    "PROCESS3",
     {
+      maxQueue: 5,
       maxWorkers: 1,
-      maxQueue: MAX_QUEUE,
       distribution: "exp",
-      chooseType: "priority",
-    }
-  );
-  const process4 = new Process(
-    {
-      delayMean: 1,
-    },
-    "PROCESSOR4",
-    {
-      maxWorkers: 1,
-      maxQueue: MAX_QUEUE,
-      distribution: "exp",
-      chooseType: "priority",
-    }
-  );
-  const process5 = new Process(
-    {
-      delayMean: 1,
-    },
-    "PROCESSOR5",
-    {
-      maxWorkers: 5,
-      maxQueue: MAX_QUEUE,
-      distribution: "exp",
-      chooseType: "priority",
+      chooseType: "random",
     }
   );
 
   create.setNextElements([
     {
       element: process1,
-      probability: 1,
-      priority: 1,
     },
   ]);
   process1.setNextElements([
     {
       element: process2,
-      priority: 1,
-      probability: 0.5,
-    },
-    {
-      element: process3,
-      priority: 5,
-      probability: 0.5,
-    },
-    {
-      element: process4,
-      priority: 3,
-      probability: 0,
     },
   ]);
   process2.setNextElements([
     {
-      element: process5,
-      priority: 1,
+      element: process3,
       probability: 1,
-    },
-  ]);
-  process3.setNextElements([
-    {
-      element: process5,
-      priority: 1,
-      probability: 1,
-    },
-  ]);
-  process4.setNextElements([
-    {
-      element: process5,
-      priority: 1,
-      probability: 1,
+      withBlockingRouting: true
     },
   ]);
 
-  const arr: Element[] = [
-    create,
-    process1,
-    process2,
-    process3,
-    process4,
-    process5,
-  ];
+  const arr: Element[] = [create, process1, process2, process3];
 
   const model = new Model(arr);
   model.simulate(1000);
