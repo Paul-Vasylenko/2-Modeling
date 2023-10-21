@@ -3,11 +3,38 @@ import FunRand from "./FunRand";
 export type DistributionType = "exp";
 
 export type ChooseNextElementBy = "probability" | "priority" | "random";
-export interface NextElement {
-  element: Element;
-  probability: number;
-  priority: number;
+type ElementByProb = { element: Element; probability: number };
+type ElementByPriority = { element: Element; priority: number };
+type ElementByRandom = { element: Element };
+export type NextElement<T extends ChooseNextElementBy> = T extends "probability"
+  ? ElementByProb
+  : T extends "priority"
+  ? ElementByPriority
+  : T extends "random"
+  ? ElementByRandom
+  : never;
+
+function isByProb(
+  el: ElementByProb | ElementByPriority | ElementByRandom
+): el is ElementByProb {
+  return (el as ElementByProb).probability !== undefined;
 }
+
+function isByPriority(
+  el: ElementByProb | ElementByPriority | ElementByRandom
+): el is ElementByPriority {
+  return (el as ElementByPriority).priority !== undefined;
+}
+
+function isByRandom(
+  el: ElementByProb | ElementByPriority | ElementByRandom
+): el is ElementByRandom {
+  return (
+    (el as ElementByPriority).priority === undefined &&
+    (el as ElementByProb).probability === undefined
+  );
+}
+
 class Element {
   protected chooseType: ChooseNextElementBy = "priority";
   private name: string;
@@ -17,7 +44,7 @@ class Element {
   private quantity: number = 0;
   private tcurr: number;
   private state: number;
-  private nextElements: NextElement[];
+  private nextElements: NextElement<typeof this.chooseType>[];
   private static nextId = 0;
   private id: number;
 
@@ -48,14 +75,42 @@ class Element {
     return delay;
   }
 
-  public setNextElements(nextElements: NextElement[]) {
-    if (this.chooseType === "probability") {
-      const sumprob = nextElements.reduce(
-        (prev, curr) => prev + curr.probability,
-        0
+  private validateNextElements(
+    nextElements: NextElement<typeof this.chooseType>[]
+  ) {
+    if (this.chooseType === "priority") {
+      const isPriorityAllSet = nextElements.every(
+        (el) =>
+          isByPriority(el) && el.priority !== undefined && el.priority !== null
       );
-      if (sumprob !== 1) throw new Error(`Total prob must be 1: ${this.name}`);
+      if (!isPriorityAllSet)
+        throw new Error(
+          "For priority choose type all priorities must be set " + this.name
+        );
+      return;
     }
+    if (this.chooseType === "probability") {
+      const isProbabilityAllSet = nextElements.every(
+        (el) => isByProb(el) && el.probability !== undefined && el.probability !== null
+      );
+      if (!isProbabilityAllSet)
+        throw new Error(
+          "For probability choose type all probabilities must be set " +
+            this.name
+        );
+      const sumprob = nextElements.reduce((prev, curr) => {
+        if (isByProb(curr)) {
+          return prev + curr.probability;
+        }
+        return 0; // ts mock
+      }, 0);
+      if (sumprob !== 1) throw new Error(`Total prob must be 1: ${this.name}`);
+      return;
+    }
+  }
+
+  public setNextElements(nextElements: NextElement<typeof this.chooseType>[]) {
+    this.validateNextElements(nextElements);
     this.nextElements = nextElements;
   }
 
@@ -71,50 +126,57 @@ class Element {
       return this.chooseByProbability();
     }
 
-    if (this.chooseType === 'priority') {
+    if (this.chooseType === "priority") {
       return this.chooseByPriority();
     }
 
-    if (this.chooseType === 'random') {
+    if (this.chooseType === "random") {
       return this.chooseByRandom();
     }
   }
 
   private chooseByProbability() {
     const rand = Math.random();
-      const probs: number[] = [];
-      let i = 0;
-      for (const el of this.nextElements) {
+    const probs: number[] = [];
+    let i = 0;
+    for (const el of this.nextElements) {
+      if (isByProb(el)) {
         const prob = i === 0 ? el.probability : el.probability + probs[i - 1];
         probs.push(prob);
         i++;
       }
+    }
 
-      let nextEl;
+    let nextEl;
 
-      for (i = 0; i < probs.length; i++) {
-        if (i === 0 && rand < probs[i]) {
-          nextEl = this.nextElements[i].element;
-          break;
-        }
-        if (i === probs.length - 1 && rand >= probs[i]) {
-          nextEl = this.nextElements[i].element;
-          break;
-        }
-        if (rand >= probs[i] && rand < probs[i + 1]) {
-          nextEl = this.nextElements[i+1].element;
-          i++
-          break;
-        }
+    for (i = 0; i < probs.length; i++) {
+      if (i === 0 && rand < probs[i]) {
+        nextEl = this.nextElements[i].element;
+        break;
       }
+      if (i === probs.length - 1 && rand >= probs[i]) {
+        nextEl = this.nextElements[i].element;
+        break;
+      }
+      if (rand >= probs[i] && rand < probs[i + 1]) {
+        nextEl = this.nextElements[i + 1].element;
+        i++;
+        break;
+      }
+    }
 
-      return nextEl;
+    return nextEl;
   }
 
   private chooseByPriority() {
-    const free = this.nextElements.filter(el => el.element.isFree());
-    free.sort((e1, e2) => e2.priority - e1.priority)
-    
+    const free = this.nextElements.filter((el) => el.element.isFree());
+    free.sort((e1, e2) => {
+      if (isByPriority(e1) && isByPriority(e2)) {
+        return e2.priority - e1.priority;
+      }
+      return 0; // ts mock
+    });
+
     return free[0]?.element;
   }
 
@@ -128,13 +190,12 @@ class Element {
       if (rand >= i * step && rand < (i + 1) * step) {
         const foundEvent = this.nextElements[i];
         // if(foundEvent)
-        return foundEvent;
+        return foundEvent.element;
       }
     }
   }
 
-  public isFree() {
-  }
+  public isFree() {}
 
   public getDistribution(): DistributionType {
     return this.distribution;

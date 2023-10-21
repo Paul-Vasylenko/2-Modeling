@@ -14,7 +14,7 @@ import Process from "./Process";
     maxWorkers: 5,
     maxQueue: MAX_QUEUE,
     distribution: "exp",
-    chooseType: 'priority'
+    chooseType: 'random'
   });
   const process2 = new Process(1.0, "PROCESSOR2", {
     maxWorkers: 1,
@@ -52,12 +52,12 @@ import Process from "./Process";
     {
       element: process2,
       priority: 1,
-      probability: 0.99,
+      probability: 0.5,
     },
     {
       element: process3,
-      priority: 2,
-      probability: 0.01,
+      priority: 5,
+      probability: 0.5,
     },
     {
       element: process4,
