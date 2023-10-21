@@ -173,7 +173,7 @@ class Process extends Element {
 
   public isFree() {
     // TODO: якщо всі воркери зайняті, враховувати довжину черги
-    return this.workers.some((w) => w.status === "free");
+    return this.workers.some((w) => w.status === "free") || this.queue < this.maxqueue;
   }
 }
 
