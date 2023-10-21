@@ -1,4 +1,7 @@
-import Element, { ChooseNextElementBy, DistributionType, IDelay } from "./Element";
+import Element from "./Element";
+import { ChooseNextElementBy } from "./types/choose-next-el";
+import { IDelay } from "./types/delay";
+import { DistributionType } from "./types/distribution";
 
 class Create extends Element {
   constructor(

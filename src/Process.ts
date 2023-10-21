@@ -1,4 +1,7 @@
-import Element, { ChooseNextElementBy, DistributionType, IDelay } from "./Element";
+import Element from "./Element";
+import { ChooseNextElementBy } from "./types/choose-next-el";
+import { IDelay } from "./types/delay";
+import { DistributionType } from "./types/distribution";
 
 // todo 2
 // todo 4 --- change only 1 parameter
@@ -169,6 +172,7 @@ class Process extends Element {
   }
 
   public isFree() {
+    // TODO: якщо всі воркери зайняті, враховувати довжину черги
     return this.workers.some((w) => w.status === "free");
   }
 }

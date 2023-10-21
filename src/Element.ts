@@ -1,46 +1,8 @@
 import FunRand from "./FunRand";
-
-export type DistributionType = "exp" | "uni" | "norm";
-
-export type ChooseNextElementBy = "probability" | "priority" | "random";
-type ElementByProb = { element: Element; probability: number };
-type ElementByPriority = { element: Element; priority: number };
-type ElementByRandom = { element: Element };
-export type NextElement<T extends ChooseNextElementBy> = T extends "probability"
-  ? ElementByProb
-  : T extends "priority"
-  ? ElementByPriority
-  : T extends "random"
-  ? ElementByRandom
-  : never;
-
-function isByProb(
-  el: ElementByProb | ElementByPriority | ElementByRandom
-): el is ElementByProb {
-  return (el as ElementByProb).probability !== undefined;
-}
-
-function isByPriority(
-  el: ElementByProb | ElementByPriority | ElementByRandom
-): el is ElementByPriority {
-  return (el as ElementByPriority).priority !== undefined;
-}
-
-function isByRandom(
-  el: ElementByProb | ElementByPriority | ElementByRandom
-): el is ElementByRandom {
-  return (
-    (el as ElementByPriority).priority === undefined &&
-    (el as ElementByProb).probability === undefined
-  );
-}
-
-export interface IDelay {
-  delayMean?: number;
-  minDelay?: number;
-  maxDelay?: number;
-  delayDev?: number;
-}
+import { ChooseNextElementBy } from "./types/choose-next-el";
+import { IDelay } from "./types/delay";
+import { DistributionType } from "./types/distribution";
+import { NextElement, isByPriority, isByProb } from "./types/nest-element";
 
 class Element {
   protected chooseType: ChooseNextElementBy = "priority";
