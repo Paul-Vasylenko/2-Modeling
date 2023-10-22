@@ -19,6 +19,9 @@ class Process extends Element {
   private workers: Worker[] = [];
   private meanQueue: number;
   private totalWorkTime = 0;
+  private swapQueueCounter = 0;
+  private changeQueueDiff = 0;
+  private neightbours: Process[] = [];
 
   constructor(
     delay: IDelay,
@@ -54,13 +57,14 @@ class Process extends Element {
 
   public inAct(): void {
     const free = this.getFreeWorker();
-
+    
     // if is free
     if (free) {
       // set is NOT free
       free.status = "busy";
       // Delay of work
       const delay = super.getDelay();
+      
       free.tnext = super.getTcurr() + delay;
       // console.log('Made BUSY worker', free.index);
 
@@ -82,7 +86,8 @@ class Process extends Element {
 
   public outAct(): void {
     super.outAct();
-
+    console.log(4, 'work done');
+    
     const busyWorker = this.getBusyWorker();
 
     if (!busyWorker) {
@@ -95,10 +100,11 @@ class Process extends Element {
     // set is free
     busyWorker.status = "free";
 
+    this.tryChangeQueue();
+
     // process next element
     const element = super.getNextElement();
-    if (!element) return;
-    if (!element.isFree()) {
+    if (element && !element.isFree()) {
       // chosen elemetnt in list of `nestElements`
       const nextElement = this.getNextElements().find(
         (el) => el.element.getId() === element.getId()
@@ -110,9 +116,8 @@ class Process extends Element {
         return;
       }
     }
-
     // if queue is not empty
-    if (busyWorker.status === 'free' && this.getQueue() > 0) {
+    if (busyWorker.status === "free" && this.getQueue() > 0) {
       // get out of queue
       this.setQueue(this.getQueue() - 1);
       // set busy again (we take next element)
@@ -127,8 +132,21 @@ class Process extends Element {
     element?.inAct();
   }
 
-  public getQueue() {
+  public getQueue(): number {
     return this.queue;
+  }
+
+  public tryChangeQueue() {
+    for (const neightbour of this.neightbours) {
+      const queueDiff = this.queue - neightbour.queue;
+      if (queueDiff >= this.changeQueueDiff) {
+        neightbour.queue++;
+        this.queue--;
+        this.swapQueueCounter++;
+        
+        return;
+      }
+    }
   }
 
   public getState(): number {
@@ -185,11 +203,25 @@ class Process extends Element {
     this.totalWorkTime = time;
   }
 
+  public getNeighours() {
+    return this.neightbours;
+  }
+
+  public setNeighours(neightbours: Process[], changeQueueDiff: number) {
+    this.neightbours = neightbours;
+    this.changeQueueDiff = changeQueueDiff;
+  }
+
+  public setWorkers(workers: Worker[]){
+    this.workers = workers;
+  }
+
   public isFree() {
-    // TODO: якщо всі воркери зайняті, враховувати довжину черги
     return (
-      this.workers.some((w) => w.status === "free") ||
-      this.queue < this.maxqueue
+      // в цьому випадку вільною каса вважається без врахування черги
+      this.workers.some((w) => w.status === "free")
+      // ||
+      // this.queue < this.maxqueue
     );
   }
 }

@@ -4,75 +4,71 @@ import Model from "./Model";
 import Process from "./Process";
 
 (async () => {
-  const create = new Create(
+  const clientsArrival = new Create(
+    {
+      delayMean: 0.1,
+    },
+    "CLIENTS ARRIVAL",
+    {
+      distribution: "const",
+      chooseType: "minQueue",
+    }
+  );
+  clientsArrival.outAct()
+  clientsArrival.setDistribution('exp');
+  clientsArrival.setDelayMean(0.5)
+
+  const cashier1 = new Process(
     {
       delayMean: 1,
+      delayDev: 0.3
     },
-    "CREATE",
+    "CASHIER 1",
     {
-      distribution: "exp",
+      distribution: "norm",
       chooseType: "random",
+      maxQueue: 3,
+      maxWorkers: 1,
     }
   );
+  cashier1.setQueue(2);
+  cashier1.inAct();
+  cashier1.setDistribution('exp')
+  cashier1.setDelayMean(0.3)
+  cashier1.setDelayDev(0)
 
-  const process1 = new Process(
+  const cashier2 = new Process(
     {
       delayMean: 1,
+      delayDev: 0.3,
     },
-    "PROCESS1",
+    "CASHIER 2",
     {
-      maxQueue: 0,
-      maxWorkers: 1,
-      distribution: "exp",
+      distribution: "norm",
       chooseType: "random",
-    }
-  );
-
-  const process2 = new Process(
-    {
-      delayMean: 2,
-    },
-    "PROCESS2",
-    {
-      maxQueue: Infinity,
-      maxWorkers: 2,
-      distribution: "exp",
-      chooseType: "probability",
-    }
-  );
-
-  const process3 = new Process(
-    {
-      delayMean: 2,
-    },
-    "PROCESS3",
-    {
-      maxQueue: 5,
+      maxQueue: 3,
       maxWorkers: 1,
-      distribution: "exp",
-      chooseType: "random",
     }
   );
+  cashier2.setQueue(2);
+  cashier2.inAct();
+  cashier2.setDistribution('exp')
+  cashier2.setDelayMean(0.3)
+  cashier2.setDelayDev(0)
 
-  create.setNextElements([
+  cashier1.setNeighours([cashier2], 2);
+  cashier2.setNeighours([cashier1], 2);
+
+  clientsArrival.setNextElements([
     {
-      element: process1,
+      element: cashier1,
     },
-  ]);
-  process1.setNextElements([
     {
-      element: process2,
-    },
-  ]);
-  process2.setNextElements([
-    {
-      element: process3,
-      probability: 1,
-      withBlockingRouting: true
+      element: cashier2,
     },
   ]);
 
-  const arr: Element[] = [create, process1, process2, process3];
+  const arr: Element[] = [clientsArrival, cashier1, cashier2];
 
   const model = new Model(arr);
   model.simulate(1000);
