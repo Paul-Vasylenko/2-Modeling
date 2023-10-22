@@ -19,9 +19,13 @@ class Process extends Element {
   private workers: Worker[] = [];
   private meanQueue: number;
   private totalWorkTime = 0;
-  private swapQueueCounter = 0;
+  public swapQueueCounter = 0;
   private changeQueueDiff = 0;
   private neightbours: Process[] = [];
+  private prevLeaveTime: number | null = null;
+  public leaveIntervals = 0;
+  private clientStartTime = 0;
+  public totalClientTime = 0;
 
   constructor(
     delay: IDelay,
@@ -68,7 +72,7 @@ class Process extends Element {
       free.tnext = super.getTcurr() + delay;
 
       this.setTotalWorkTime(this.getTotalWorkTime() + delay);
-
+      this.clientStartTime = this.getTcurr();
       super.setTnext(free.tnext);
       return;
     }
@@ -86,6 +90,12 @@ class Process extends Element {
   public outAct(): void {
     super.outAct();
     
+    // for statistics
+    const leaveInterval = this.prevLeaveTime ? this.getTcurr() - this.prevLeaveTime : this.getTcurr();
+    this.prevLeaveTime = this.getTcurr();
+    this.leaveIntervals+=leaveInterval;
+    this.totalClientTime += this.getTcurr() - this.clientStartTime;
+
     const busyWorker = this.getBusyWorker();
 
     if (!busyWorker) {
