@@ -66,7 +66,6 @@ class Process extends Element {
       const delay = super.getDelay();
       
       free.tnext = super.getTcurr() + delay;
-      // console.log('Made BUSY worker', free.index);
 
       this.setTotalWorkTime(this.getTotalWorkTime() + delay);
 
@@ -86,7 +85,7 @@ class Process extends Element {
 
   public outAct(): void {
     super.outAct();
-    console.log(4, 'work done');
+    (4, 'work done');
     
     const busyWorker = this.getBusyWorker();
 
