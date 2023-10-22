@@ -85,7 +85,6 @@ class Process extends Element {
 
   public outAct(): void {
     super.outAct();
-    (4, 'work done');
     
     const busyWorker = this.getBusyWorker();
 
