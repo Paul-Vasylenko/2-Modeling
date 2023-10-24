@@ -1,1 +1,1 @@
-export type ChooseNextElementBy = "probability" | "priority" | "random" | "minQueue";
+export type ChooseNextElementBy = "probability" | "priority" | "random" | "minQueue" | "clientType";

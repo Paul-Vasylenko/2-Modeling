@@ -1,6 +1,7 @@
 import Element from "../Element";
 import Process from "../Process";
 import { ChooseNextElementBy } from "./choose-next-el";
+import { ClientType } from "./client-types";
 
 export type ElementByProb = {
   element: Element;
@@ -20,6 +21,11 @@ export type ElementByMinQueue = {
   element: Element;
   withBlockingRouting?: boolean;
 };
+export type ElementByClientType = {
+  element: Element;
+  types: ClientType[];
+  withBlockingRouting?: boolean;
+};
 export type NextElement<T extends ChooseNextElementBy> = T extends "probability"
   ? ElementByProb
   : T extends "priority"
@@ -28,6 +34,8 @@ export type NextElement<T extends ChooseNextElementBy> = T extends "probability"
   ? ElementByRandom
   : T extends "minQueue"
   ? ElementByMinQueue
+  : T extends "clientType"
+  ? ElementByClientType
   : never;
 
 export function isByProb(
@@ -60,8 +68,12 @@ export function isByMinQueue(
   );
 }
 
-export function isProcess(
-  el: Element | Process
-): el is Process {
+export function isByClientType(
+  el: ElementByProb | ElementByPriority | ElementByRandom | ElementByClientType
+): el is ElementByClientType {
+  return (el as ElementByClientType).types === undefined;
+}
+
+export function isProcess(el: Element | Process): el is Process {
   return (el as Process).getQueue() !== undefined;
 }
