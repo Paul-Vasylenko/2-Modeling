@@ -59,16 +59,20 @@ class Process extends Element {
     }
   }
 
+  public getDelay(): number {
+    return this.getClientType().meanTime;
+  }
+
   public inAct(): void {
     const free = this.getFreeWorker();
-    
+
     // if is free
     if (free) {
       // set is NOT free
       free.status = "busy";
       // Delay of work
       const delay = super.getDelay();
-      
+
       free.tnext = super.getTcurr() + delay;
 
       this.setTotalWorkTime(this.getTotalWorkTime() + delay);
@@ -89,11 +93,13 @@ class Process extends Element {
 
   public outAct(): void {
     super.outAct();
-    
+
     // for statistics
-    const leaveInterval = this.prevLeaveTime ? this.getTcurr() - this.prevLeaveTime : this.getTcurr();
+    const leaveInterval = this.prevLeaveTime
+      ? this.getTcurr() - this.prevLeaveTime
+      : this.getTcurr();
     this.prevLeaveTime = this.getTcurr();
-    this.leaveIntervals+=leaveInterval;
+    this.leaveIntervals += leaveInterval;
     this.totalClientTime += this.getTcurr() - this.clientStartTime;
 
     const busyWorker = this.getBusyWorker();
@@ -151,7 +157,7 @@ class Process extends Element {
         neightbour.queue++;
         this.queue--;
         this.swapQueueCounter++;
-        
+
         return;
       }
     }
@@ -220,7 +226,7 @@ class Process extends Element {
     this.changeQueueDiff = changeQueueDiff;
   }
 
-  public setWorkers(workers: Worker[]){
+  public setWorkers(workers: Worker[]) {
     this.workers = workers;
   }
 

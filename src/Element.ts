@@ -1,9 +1,11 @@
 import FunRand from "./FunRand";
 import { ChooseNextElementBy } from "./types/choose-next-el";
+import { IClientType } from "./types/client-types";
 import { IDelay } from "./types/delay";
 import { DistributionType } from "./types/distribution";
 import {
   NextElement,
+  isByClientType,
   isByPriority,
   isByProb,
   isProcess,
@@ -25,6 +27,8 @@ class Element {
   private nextElements: NextElement<typeof this.chooseType>[];
   private static nextId = 0;
   private id: number;
+  public clientTypes: IClientType[];
+  private clientType!: IClientType;
 
   constructor(delay: IDelay, nameOfElement?: string) {
     this.tnext = Infinity;
@@ -32,6 +36,7 @@ class Element {
     this.distribution = "exp";
     this.tcurr = 0;
     this.state = 0;
+    this.clientTypes = [];
     this.nextElements = [];
     this.id = Element.nextId;
     Element.nextId++;
@@ -133,7 +138,19 @@ class Element {
       element = this.chooseByMinQueue();
     }
 
+    if (this.chooseType === "clientType") {
+      element = this.chooseByClientType();
+    }
+
     return element;
+  }
+
+  private chooseByClientType() {
+    const element = this.nextElements.find(
+      (el) => isByClientType(el) && el.types.includes(this.clientType.type)
+    );
+
+    return element?.element || this.nextElements[0].element;
   }
 
   private chooseByProbability() {
@@ -198,8 +215,8 @@ class Element {
 
   private chooseByMinQueue() {
     // якщо є вільна каса то не дивитись на черги
-    const free = this.nextElements.find(el => el.element.isFree());
-    if(free) return free.element;
+    const free = this.nextElements.find((el) => el.element.isFree());
+    if (free) return free.element;
     const queues: number[] = this.nextElements.map((el) => {
       if (isProcess(el.element)) return el.element.getQueue();
       return 0;
@@ -303,6 +320,14 @@ class Element {
   }
 
   public doStatistics(delta?: number) {}
+
+  public getClientType() {
+    return this.clientType;
+  }
+
+  public setClientType(type: IClientType) {
+    this.clientType = type;
+  }
 }
 
 export default Element;

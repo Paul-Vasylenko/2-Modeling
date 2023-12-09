@@ -1,74 +1,73 @@
 import Create from "./Create";
+import Dispose from "./Dispose";
 import Element from "./Element";
 import Model from "./Model";
 import Process from "./Process";
+import { ClientType } from "./types/client-types";
 
 (async () => {
+  const clientTypes = [
+    {
+      type: ClientType.CHECKED,
+      freq: 0.5,
+      meanTime: 15,
+      priority: 2,
+    },
+    {
+      type: ClientType.SICK_NOT_CHECKED,
+      freq: 0.1,
+      meanTime: 40,
+      priority: 1,
+    },
+    {
+      type: ClientType.TO_BE_CHECKED,
+      freq: 0.4,
+      meanTime: 30,
+      priority: 1,
+    },
+  ];
   const clientsArrival = new Create(
     {
-      delayMean: 0.1,
+      delayMean: 15,
     },
-    "CLIENTS ARRIVAL",
+    "Clients arrival",
     {
-      distribution: "const",
-      chooseType: "minQueue",
-    }
-  );
-  clientsArrival.outAct()
-  clientsArrival.setDistribution('exp');
-  clientsArrival.setDelayMean(0.5)
-
-  const cashier1 = new Process(
-    {
-      delayMean: 1,
-      delayDev: 0.3
-    },
-    "CASHIER 1",
-    {
-      distribution: "norm",
+      distribution: "exp",
       chooseType: "random",
-      maxQueue: 3,
-      maxWorkers: 1,
+      clientTypes,
     }
   );
-  cashier1.setQueue(2);
-  cashier1.inAct();
-  cashier1.setDistribution('exp')
-  cashier1.setDelayMean(0.3)
-  cashier1.setDelayDev(0)
-
-  const cashier2 = new Process(
+  const receptionDepartment = new Process(
     {
-      delayMean: 1,
-      delayDev: 0.3,
+      delayMean: 12,
     },
-    "CASHIER 2",
+    "RECEPTION DEPARTMENT",
     {
-      distribution: "norm",
-      chooseType: "random",
-      maxQueue: 3,
-      maxWorkers: 1,
+      maxWorkers: 2,
+      maxQueue: Infinity,
+      distribution: "exp",
+      chooseType: "clientType",
     }
   );
-  cashier2.setQueue(2);
-  cashier2.inAct();
-  cashier2.setDistribution('exp')
-  cashier2.setDelayMean(0.3)
-  cashier2.setDelayDev(0)
-
-  cashier1.setNeighours([cashier2], 2);
-  cashier2.setNeighours([cashier1], 2);
+  const lab = new Process();
+  const goToRoom = new Dispose({}, "COME TO ROOM");
 
   clientsArrival.setNextElements([
     {
-      element: cashier1,
-    },
-    {
-      element: cashier2,
+      element: receptionDepartment,
     },
   ]);
-
-  const arr: Element[] = [clientsArrival, cashier1, cashier2];
+  receptionDepartment.setNextElements([
+    {
+      element: goToRoom,
+      types: [ClientType.CHECKED],
+    },
+    {
+      element: lab,
+      types: [ClientType.SICK_NOT_CHECKED, ClientType.TO_BE_CHECKED],
+    },
+  ]);
+  const arr: Element[] = [];
 
   const model = new Model(arr);
   model.simulate(1000);
