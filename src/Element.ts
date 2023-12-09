@@ -2,7 +2,13 @@ import FunRand from "./FunRand";
 import { ChooseNextElementBy } from "./types/choose-next-el";
 import { IDelay } from "./types/delay";
 import { DistributionType } from "./types/distribution";
-import { NextElement, isByPriority, isByProb } from "./types/nest-element";
+import {
+  NextElement,
+  isByPriority,
+  isByProb,
+  isProcess,
+} from "./types/next-element";
+import { areAllNumbersSame, findIndexOfMin } from "./utils/number";
 
 class Element {
   protected chooseType: ChooseNextElementBy = "priority";
@@ -24,7 +30,7 @@ class Element {
     this.tnext = Infinity;
     this.delayMean = delay.delayMean || 1.0;
     this.distribution = "exp";
-    this.tcurr = this.tnext;
+    this.tcurr = 0;
     this.state = 0;
     this.nextElements = [];
     this.id = Element.nextId;
@@ -49,6 +55,9 @@ class Element {
         break;
       case "norm":
         delay = FunRand.normal(this.delayMean, this.delayDev);
+        break;
+      case "const":
+        delay = this.delayMean;
         break;
       default:
         throw new Error("Wrong distribution type!");
@@ -105,7 +114,7 @@ class Element {
 
   public getNextElement() {
     if (!this.nextElements.length) return null;
-    // if (this.nextElements.length === 1) return this.nextElements[0].element;
+    if (this.nextElements.length === 1) return this.nextElements[0].element;
 
     let element;
     if (this.chooseType === "probability") {
@@ -118,6 +127,10 @@ class Element {
 
     if (this.chooseType === "random") {
       element = this.chooseByRandom();
+    }
+
+    if (this.chooseType === "minQueue") {
+      element = this.chooseByMinQueue();
     }
 
     return element;
@@ -183,8 +196,24 @@ class Element {
     }
   }
 
+  private chooseByMinQueue() {
+    // якщо є вільна каса то не дивитись на черги
+    const free = this.nextElements.find(el => el.element.isFree());
+    if(free) return free.element;
+    const queues: number[] = this.nextElements.map((el) => {
+      if (isProcess(el.element)) return el.element.getQueue();
+      return 0;
+    });
+
+    // якщо всі черги пусті (queue = 0) або
+    // якщо всі черги рівні, то ф-я поверне 0 (перший елемент)
+    const i = findIndexOfMin(queues);
+
+    return this.nextElements[i].element;
+  }
+
   public isFree(): boolean {
-    return true
+    return true;
   }
 
   public getDistribution(): DistributionType {
@@ -235,6 +264,14 @@ class Element {
 
   public setDelayMean(delay: number) {
     this.delayMean = delay;
+  }
+
+  public getDelayDev() {
+    return this.delayDev;
+  }
+
+  public setDelayDev(delayDev: number) {
+    this.delayDev = delayDev;
   }
 
   public getId() {
